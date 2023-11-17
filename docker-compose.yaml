@@ -9,9 +9,8 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-      - reverse_proxy
-      - cache
-      - search
+    volumes:
+      - static_files:/code/static
 
   db:
     image: postgres:15-alpine
@@ -21,7 +20,7 @@ services:
       - POSTGRES_PASSWORD=postgres
     restart: unless-stopped
     volumes:
-      - pgdata:/var/lib/postgresql/data/
+      - pg_data:/var/lib/postgresql/data/
 
   reverse_proxy:
     build:
@@ -29,19 +28,15 @@ services:
     restart: unless-stopped
     ports:
       - "8000:80"
+    volumes:
+      - static_files:/usr/share/nginx/html/static
 
   cache:
     image: redis:alpine3.18
     restart: unless-stopped
 
-  search:
-    image: elasticsearch:8.11.0
-    restart: unless-stopped
-    volumes:
-      - elastic_data:/usr/share/elasticsearch/data
-
 volumes:
-  pgdata:
+  pg_data:
     driver: local
-  elastic_data:
+  static_files:
     driver: local
