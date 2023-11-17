@@ -1,0 +1,42 @@
+version: "3"
+services:
+  backend:
+    build:
+      context: .
+    environment:
+      - DJANGO_SETTINGS_MODULE=johar.settings.production
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/johar
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      - static_files:/code/static
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=johar
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+  reverse_proxy:
+    build:
+      context: ./nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - static_files:/usr/share/nginx/html/static
+
+  cache:
+    image: redis:alpine3.18
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+    driver: local
+  static_files:
+    driver: local
