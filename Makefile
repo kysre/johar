@@ -5,6 +5,7 @@ help:
 	@echo "  run-dev-server:       to run development server"
 	@echo "  migrate:              to make migrations and migrate database"
 	@echo "  test:                 to run django tests"
+	@echo "  run-docker-compose:   to docker-compose up and serve static files"
 
 
 venv:
@@ -23,9 +24,16 @@ run-dev-server:
 
 
 migrate:
+	export DJANGO_SETTINGS_MODULE=course_scheduler.settings.development
 	python manage.py makemigrations
 	python manage.py migrate
 
 
 test:
 	python manage.py test
+
+
+run-docker-compose:
+	docker-compose up -d
+	docker-compose exec backend python manage.py collectstatic --noinput
+
