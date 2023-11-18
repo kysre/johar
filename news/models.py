@@ -42,7 +42,7 @@ class News(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{str(self.agency)} + {self.title}'
+        return f'{str(self.id) + str(self.agency)} + {self.title}'
 
 
 class Like(models.Model):

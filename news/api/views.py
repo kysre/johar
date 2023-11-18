@@ -1,17 +1,16 @@
 from django.http import HttpResponse
 
 from rest_framework.decorators import (
+    APIView,
     api_view,
     authentication_classes,
     permission_classes,
 )
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
-from news.models import Subscriber
-from news.api.serializers import (
-    UserSerializer,
-)
 from news.services.news import (
     login_by_username_password,
 )
@@ -23,6 +22,11 @@ from response.rest import (
     LoginSuccessResponse,
     LoginErrorResponse,
 )
+
+from news.models import Subscriber, Agency, Category, News, Like, DisLike, Comment
+from news.api.serializers import (UserSerializer, CategorySerializer,
+                                  NewsSerializer, LikeSerializer, DisLikeSerializer,
+                                  CommentSerializer)
 
 
 def index(request):
@@ -59,3 +63,28 @@ def login(request):
 def sample_api(request):
     # TODO: Do stuff
     return None
+
+
+# Get news by Category title
+class CategoryDetailView(APIView):
+    def get(self, request, category_name):
+        try:
+            news = News.objects.filter(categories__title__contains=category_name)
+            if news.exists():
+                serializer = NewsSerializer(news, many=True)
+                return Response(serializer.data)
+            else:
+                return Response({"detail": "Category doesn't exists"}, status=status.HTTP_404_NOT_FOUND)
+        except Category.DoesNotExist:
+            return Response({"detail": "There is no News"}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Get all news
+class AllNewsDetailView(APIView):
+    def get(self, request):
+        news = News.objects.all()
+        if news.exists():
+            serializer = NewsSerializer(news, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({"detail": "unknown Error"}, status=status.HTTP_400_BAD_REQUEST)
