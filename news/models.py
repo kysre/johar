@@ -34,7 +34,7 @@ class News(models.Model):
     title = models.CharField(max_length=50)
     agency = models.ForeignKey('Agency', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='news')
-    description = models.CharField(max_length=250)
+    description = models.TextField()
     icon = models.ImageField(blank=True, upload_to='categories')
     is_enable = models.BooleanField(default=True)
     categories = models.ManyToManyField('Category', blank=True)
@@ -42,7 +42,7 @@ class News(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.agency.user.username} + {self.title}'
+        return f'{str(self.agency)} + {self.title}'
 
 
 class Like(models.Model):
@@ -51,7 +51,7 @@ class Like(models.Model):
     user = models.ForeignKey('Subscriber', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.news
+        return str(self.user)
 
 
 class DisLike(models.Model):
@@ -60,7 +60,7 @@ class DisLike(models.Model):
     user = models.ForeignKey('Subscriber', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.news
+        return str(self.user)
 
 
 class Comment(models.Model):
@@ -74,4 +74,4 @@ class Comment(models.Model):
     # todo add update?
 
     def __str__(self):
-        return self.news
+        return f'{str(self.news)} + {str(self.user)}'
