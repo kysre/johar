@@ -4,6 +4,7 @@ from news.api import views
 
 urlpatterns = [
     path('', views.AllNewsDetailView.as_view(), name='index'),
+    path('<int:pk>/', views.NewsDetailView.as_view()),
     path('sign_up/', views.user_signup),
     path('login/', views.login),
     path('categories/<str:category_name>/', views.CategoryDetailView.as_view(), name='category_name'),

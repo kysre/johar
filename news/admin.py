@@ -1,44 +1,38 @@
 from django.contrib import admin
 
-from news.models import Subscriber, Agency, Category, News, Like, DisLike, Comment
+from news.models import Subscriber, Reporter, Agency, Category, News  #,  Like, DisLike, Comment
 
 admin.site.register(Subscriber)
 
 
+class ReporterInlineAdmin(admin.StackedInline):
+    model = Reporter
+    fields = ['user']
+    extra = 1
+
+
 @admin.register(Agency)
 class AgencyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['name', 'description']
+    search_fields = ['names']
+    inlines = [ReporterInlineAdmin]
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['parent', 'title', 'is_enable', 'created_time']
-    list_filter = ['is_enable', 'parent']
+    list_display = ['title', 'description', 'created_time']
     search_fields = ['titles']
-
-
-class LikeInlineAdmin(admin.StackedInline):
-    model = Like
-    fields = ['user']
-    extra = 1
-
-
-class DisLikeInlineAdmin(admin.StackedInline):
-    model = DisLike
-    fields = ['user']
-    extra = 1
-
-
-class CommentInlineAdmin(admin.StackedInline):
-    model = Comment
-    fields = ['parent', 'user', 'description']
-    extra = 1
 
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ['title', 'agency', 'image', 'description', 'icon', 'is_enable']
-    list_filter = ['agency', 'is_enable', 'categories']
+    list_display = ['title', 'agency', 'author', 'image', 'description', 'is_draft']
+    list_filter = ['agency', 'author', 'is_draft', 'categories']
     filter_horizontal = ['categories']
     search_fields = ['titles']
-    inlines = [LikeInlineAdmin, DisLikeInlineAdmin, CommentInlineAdmin]
+
+
+@admin.register(Reporter)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['user', 'avatar', 'agency']
+

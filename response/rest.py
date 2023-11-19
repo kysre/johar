@@ -63,3 +63,18 @@ class LoginErrorResponse(Response):
             'error': 'login_failed',
             'message': message,
         }
+
+
+class CategoryNotExists(Response):
+    def __init__(self):
+
+        super().__init__(status=status.HTTP_404_NOT_FOUND)
+        self.data = {
+            'error': 'category does not exists or has no news',
+        }
+
+
+class OkGetResponse(Response):
+    def __init__(self, data):
+        super().__init__(status=status.HTTP_200_OK)
+        self.data = data

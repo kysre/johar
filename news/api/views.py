@@ -21,12 +21,13 @@ from response.rest import (
     CreateUserErrorResponse,
     LoginSuccessResponse,
     LoginErrorResponse,
+    CategoryNotExists,
+    OkGetResponse
 )
 
-from news.models import Subscriber, Agency, Category, News, Like, DisLike, Comment
+from news.models import Subscriber, Agency, Category, News
 from news.api.serializers import (UserSerializer, CategorySerializer,
-                                  NewsSerializer, LikeSerializer, DisLikeSerializer,
-                                  CommentSerializer)
+                                  NewsSerializer)
 
 
 def index(request):
@@ -68,15 +69,12 @@ def sample_api(request):
 # Get news by Category title
 class CategoryDetailView(APIView):
     def get(self, request, category_name):
-        try:
-            news = News.objects.filter(categories__title__contains=category_name)
-            if news.exists():
-                serializer = NewsSerializer(news, many=True)
-                return Response(serializer.data)
-            else:
-                return Response({"detail": "Category doesn't exists"}, status=status.HTTP_404_NOT_FOUND)
-        except Category.DoesNotExist:
-            return Response({"detail": "There is no News"}, status=status.HTTP_404_NOT_FOUND)
+        news = News.objects.filter(categories__title__contains=category_name)
+        if news.exists():
+            serializer = NewsSerializer(news, many=True)
+            return OkGetResponse(serializer.data)
+        else:
+            return CategoryNotExists()
 
 
 # Get all news
@@ -85,6 +83,17 @@ class AllNewsDetailView(APIView):
         news = News.objects.all()
         if news.exists():
             serializer = NewsSerializer(news, many=True)
-            return Response(serializer.data)
+            return OkGetResponse(serializer.data)
         else:
-            return Response({"detail": "unknown Error"}, status=status.HTTP_400_BAD_REQUEST)
+            return NotFoundResponse()
+
+
+class NewsDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            news = News.objects.get(token=pk)
+            serializer = NewsSerializer(news)
+            return OkGetResponse(serializer.data)
+        except News.DoesNotExist:
+            return NotFoundResponse()
+

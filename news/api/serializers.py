@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from news.models import Category, News, Like, DisLike, Comment
+from news.models import Category, News
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -50,36 +50,11 @@ class AgencySerializer(serializers.ModelSerializer):
         }
 
 
-class LikeSerializer(serializers.ModelSerializer):
-    # news = NewsSerializer()
-    # user = UserSerializer()
-
-    class Meta:
-        model = Like
-        fields = '__all__'
-
-
-class DisLikeSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = DisLike
-        fields = ('news', 'user')
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ('parent', 'news', 'user', 'description')
-
-
 class NewsSerializer(serializers.ModelSerializer):
     agency = AgencySerializer()
     categories = CategorySerializer(many=True, read_only=True)
-    # todo add like, dislike, comments
-    likes = LikeSerializer(many=True, read_only=True)
-    # todo fix this (not showing likes)
+    #likes = LikeSerializer(many=True, read_only=True)
 
     class Meta:
         model = News
-        fields = ('id', 'title', 'agency', 'description', 'icon', 'image', 'created_time', 'categories', 'likes')
+        fields = ('token', 'title', 'agency', 'description', 'image', 'created_time', 'categories')
