@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 
 from rest_framework.decorators import (
+    APIView,
     api_view,
     authentication_classes,
     permission_classes,
@@ -8,10 +9,7 @@ from rest_framework.decorators import (
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from news.models import Subscriber
-from news.api.serializers import (
-    UserSerializer,
-)
+
 from news.services.news import (
     login_by_username_password,
 )
@@ -22,7 +20,12 @@ from response.rest import (
     CreateUserErrorResponse,
     LoginSuccessResponse,
     LoginErrorResponse,
+    CategoryNotExists,
 )
+
+from news.models import Subscriber, Agency, Category, News
+from news.api.serializers import (UserSerializer, CategorySerializer,
+                                  NewsSerializer)
 
 
 def index(request):
@@ -59,3 +62,37 @@ def login(request):
 def sample_api(request):
     # TODO: Do stuff
     return None
+
+
+# Get news by Category title
+class CategoryDetailView(APIView):
+    def get(self, request, category_name):
+        news = News.objects.filter(categories__title__contains=category_name)
+        if news.exists():
+            serializer = NewsSerializer(news, many=True)
+            return OkResponse(**{'all_news': serializer.data})
+        else:
+            return NotFoundResponse()
+
+
+# Get all news
+class AllNewsDetailView(APIView):
+    def get(self, request):
+        news = News.objects.all()
+        if news.exists():
+            serializer = NewsSerializer(news, many=True)
+            print(serializer.data)
+            return OkResponse(**{'all_news': serializer.data})
+        else:
+            return NotFoundResponse()
+
+
+class NewsDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            news = News.objects.get(token=pk)
+            serializer = NewsSerializer(news)
+            return OkResponse(**serializer.data)
+        except News.DoesNotExist:
+            return NotFoundResponse()
+
