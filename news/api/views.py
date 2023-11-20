@@ -20,7 +20,6 @@ from response.rest import (
     CreateUserErrorResponse,
     LoginSuccessResponse,
     LoginErrorResponse,
-    CategoryNotExists,
 )
 
 from news.models import Subscriber, Agency, Category, News
