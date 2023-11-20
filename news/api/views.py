@@ -8,8 +8,7 @@ from rest_framework.decorators import (
 )
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
+
 
 from news.services.news import (
     login_by_username_password,
@@ -22,7 +21,6 @@ from response.rest import (
     LoginSuccessResponse,
     LoginErrorResponse,
     CategoryNotExists,
-    OkGetResponse
 )
 
 from news.models import Subscriber, Agency, Category, News
@@ -72,9 +70,9 @@ class CategoryDetailView(APIView):
         news = News.objects.filter(categories__title__contains=category_name)
         if news.exists():
             serializer = NewsSerializer(news, many=True)
-            return OkGetResponse(serializer.data)
+            return OkResponse(**{'all_news': serializer.data})
         else:
-            return CategoryNotExists()
+            return NotFoundResponse()
 
 
 # Get all news
@@ -83,7 +81,8 @@ class AllNewsDetailView(APIView):
         news = News.objects.all()
         if news.exists():
             serializer = NewsSerializer(news, many=True)
-            return OkGetResponse(serializer.data)
+            print(serializer.data)
+            return OkResponse(**{'all_news': serializer.data})
         else:
             return NotFoundResponse()
 
@@ -93,7 +92,7 @@ class NewsDetailView(APIView):
         try:
             news = News.objects.get(token=pk)
             serializer = NewsSerializer(news)
-            return OkGetResponse(serializer.data)
+            return OkResponse(**serializer.data)
         except News.DoesNotExist:
             return NotFoundResponse()
 
