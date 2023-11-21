@@ -9,18 +9,17 @@ from rest_framework.decorators import (
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-
 from news.services.news import (
     login_by_username_password,
 )
+from news.utils.news import (get_category_detail, get_landing_page_news, news_detail)
 from response.rest import (
     OkResponse,
     NotFoundResponse,
     CreateUserSuccessResponse,
     CreateUserErrorResponse,
     LoginSuccessResponse,
-    LoginErrorResponse,
-    CategoryNotExists,
+    LoginErrorResponse
 )
 
 from news.models import Subscriber, Agency, Category, News
@@ -67,32 +66,35 @@ def sample_api(request):
 # Get news by Category title
 class CategoryDetailView(APIView):
     def get(self, request, category_name):
-        news = News.objects.filter(categories__title__contains=category_name)
-        if news.exists():
-            serializer = NewsSerializer(news, many=True)
-            return OkResponse(**{'all_news': serializer.data})
-        else:
-            return NotFoundResponse()
+        try:
+            news = get_category_detail(category_name)
+        except News.DoesNotExist:
+            return NotFoundResponse
+        serializer = NewsSerializer(news, many=True)
+        return OkResponse(news=serializer.data)
 
 
 # Get all news
-class AllNewsDetailView(APIView):
+class LandingPageView(APIView):
     def get(self, request):
-        news = News.objects.all()
-        if news.exists():
-            serializer = NewsSerializer(news, many=True)
-            print(serializer.data)
-            return OkResponse(**{'all_news': serializer.data})
-        else:
+        try:
+            news = get_landing_page_news()
+        except News.DoesNotExist:
             return NotFoundResponse()
+        serializer = NewsSerializer(news, many=True)
+        return OkResponse(news=serializer.data)
 
 
 class NewsDetailView(APIView):
-    def get(self, request, pk):
+    def get(self, request, token):
         try:
-            news = News.objects.get(token=pk)
-            serializer = NewsSerializer(news)
-            return OkResponse(**serializer.data)
+            news = news_detail(token)
         except News.DoesNotExist:
             return NotFoundResponse()
+        serializer = NewsSerializer(news)
+        return OkResponse(news=serializer.data)
 
+
+class InsertNews(APIView):
+    def post(self, request):
+        pass
