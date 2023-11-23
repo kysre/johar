@@ -6,6 +6,8 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=johar.settings.production
       - DATABASE_URL=postgres://postgres:postgres@db:5432/johar
+      - REDIS_HOST=cache
+      - NEWS_REDIS_DB=1
     restart: unless-stopped
     depends_on:
       - db
