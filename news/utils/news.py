@@ -1,4 +1,6 @@
-from news.models import News, Category
+from django.contrib.auth import get_user_model
+
+from news.models import News, Category, Reporter, Subscriber
 from datetime import datetime, timedelta
 
 
@@ -17,3 +19,17 @@ def news_detail(token):
     news = News.objects.get(token=token)
     return news
 
+
+def get_reporter(username):
+    try:
+        subscriber = get_user_model().objects.get(username=username).subscriber
+        reporter = Reporter.objects.get(subscriber=subscriber)
+
+        return reporter
+    except (get_user_model().DoesNotExist, Reporter.DoesNotExist):
+        return None
+
+
+def get_category_id(category_name):
+    category = Category.objects.get(title=category_name)
+    return category.id

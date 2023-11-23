@@ -14,6 +14,8 @@ from news.services.news import (
     get_category_detail_service,
     get_landing_page_news_service,
     get_detail_view_service,
+    is_user_reporter,
+    creat_news_service,
 )
 from response.rest import (
     OkResponse,
@@ -21,12 +23,14 @@ from response.rest import (
     CreateUserSuccessResponse,
     CreateUserErrorResponse,
     LoginSuccessResponse,
-    LoginErrorResponse
+    LoginErrorResponse,
+    AccessErrorResponse,
+    BadRequestResponse,
 )
 
 from news.models import Subscriber, Agency, Category, News
 from news.api.serializers import (UserSerializer, CategorySerializer,
-                                  NewsSerializer)
+                                  NewsSerializer, ReporterSerializer, AgencySerializer)
 
 
 def index(request):
@@ -102,9 +106,16 @@ class AddNews(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # check user auth
-
         # check is it reporter
+        username = request.user.username
+        is_successful, reporter = is_user_reporter(username)
 
+        if not is_successful:
+            return AccessErrorResponse('user cant add news(not a reporter)')
         # add news
-        pass
+
+        is_successful, message = creat_news_service(request.data, reporter)
+        if is_successful:
+            return OkResponse(message=message)
+        else:
+            return BadRequestResponse(message)
