@@ -20,6 +20,7 @@ from response.rest import (
     CreateUserErrorResponse,
     LoginSuccessResponse,
     LoginErrorResponse,
+    NotAuthorizedResponse,
 )
 
 
@@ -34,6 +35,8 @@ class ReactToNews(APIView):
             react = request.data.get('reaction')
             _, token = request.META.get('HTTP_AUTHORIZATION').split(" ")
             user = get_user_By_token(token_key=token)
+            if user is None:
+                return NotAuthorizedResponse('Your access token is invalid')
             subscriber = Subscriber.objects.get(user=user)
             reaction = Reaction(subscriber=subscriber, news=news, reaction=Reaction.convert_str_to_reaction_type(react))
             reaction.save()
@@ -49,6 +52,8 @@ class CommentOnNews(APIView):
             text = request.data.get('comment')
             _, token = request.META.get('HTTP_AUTHORIZATION').split(" ")
             user = get_user_By_token(token_key=token)
+            if user is None:
+                return NotAuthorizedResponse('Your access token is invalid')
             username = user.username
             comment = Comment(username=username, news=news, text=text)
             comment.save()
