@@ -44,6 +44,18 @@ class ReactToNews(APIView):
         except News.DoesNotExist:
             return NotFoundResponse()
 
+    def get(self, request, pk):
+        try:
+            news = News.objects.get(token=pk)
+            reactions_for_news = Reaction.objects.filter(news=news)
+            reactions_list = [{'username': reaction.subscriber.user.username, 'created_time': reaction.created_time,
+                               'reaction': reaction.reaction}
+                              for reaction in reactions_for_news]
+
+            return JsonResponse({'reactions': reactions_list})
+        except News.DoesNotExist:
+            return NotFoundResponse()
+
 
 class CommentOnNews(APIView):
     def post(self, request, pk):
