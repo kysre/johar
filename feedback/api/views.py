@@ -9,7 +9,7 @@ from rest_framework.decorators import (
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from feedback.models import Reaction
+from feedback.models import Reaction,Comment
 from news.models import News, Subscriber
 from news.utils.authentication import get_user_By_token
 
@@ -37,6 +37,21 @@ class ReactToNews(APIView):
             subscriber = Subscriber.objects.get(user=user)
             reaction = Reaction(subscriber=subscriber, news=news, reaction=Reaction.convert_str_to_reaction_type(react))
             reaction.save()
+            return OkResponse()
+        except News.DoesNotExist:
+            return NotFoundResponse()
+
+
+class CommentOnNews(APIView):
+    def post(self, request, pk):
+        try:
+            news = News.objects.get(token=pk)
+            text = request.data.get('comment')
+            _, token = request.META.get('HTTP_AUTHORIZATION').split(" ")
+            user = get_user_By_token(token_key=token)
+            username = user.username
+            comment = Comment(username=username, news=news, text=text)
+            comment.save()
             return OkResponse()
         except News.DoesNotExist:
             return NotFoundResponse()

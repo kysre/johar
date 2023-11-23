@@ -30,3 +30,12 @@ class Reaction(models.Model):
             return Reaction.DISLIKE
         else:
             return None
+
+
+class Comment(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE)
+    username = models.CharField(max_length=50)
+    text = models.CharField(max_length=150)
+
+    def __str__(self):
+        return f"Comment by {self.username} on {self.news}"
