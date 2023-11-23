@@ -65,6 +65,7 @@ class LoginErrorResponse(Response):
         }
 
 
+
 class NotAuthorizedResponse(Response):
     def __init__(self, message, **kwargs):
         """
@@ -75,3 +76,21 @@ class NotAuthorizedResponse(Response):
             'error': 'Not authorized',
             'message': message,
         }
+
+class AccessErrorResponse(Response):
+    def __init__(self, message):
+        super().__init__(status=status.HTTP_403_FORBIDDEN)
+        self.data = {
+            'error': 'access_denied',
+            'message': message
+        }
+
+
+class BadRequestResponse(Response):
+    def __init__(self, message):
+        super().__init__(status=status.HTTP_400_BAD_REQUEST)
+        self.data = {
+            'error': 'bad_request',
+            'message': message
+        }
+
