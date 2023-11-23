@@ -11,6 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 
 from news.services.news import (
     login_by_username_password,
+    get_category_detail_service,
+    get_landing_page_news_service,
+    get_detail_view_service,
 )
 from news.utils.news import (get_category_detail, get_landing_page_news, news_detail)
 from response.rest import (
@@ -66,35 +69,42 @@ def sample_api(request):
 # Get news by Category title
 class CategoryDetailView(APIView):
     def get(self, request, category_name):
-        try:
-            news = get_category_detail(category_name)
-        except News.DoesNotExist:
-            return NotFoundResponse
-        serializer = NewsSerializer(news, many=True)
-        return OkResponse(news=serializer.data)
+        is_successful, message = get_category_detail_service(category_name)
+
+        if is_successful:
+            return OkResponse(news=message)
+        else:
+            return NotFoundResponse(message=message)
 
 
 # Get all news
 class LandingPageView(APIView):
     def get(self, request):
-        try:
-            news = get_landing_page_news()
-        except News.DoesNotExist:
-            return NotFoundResponse()
-        serializer = NewsSerializer(news, many=True)
-        return OkResponse(news=serializer.data)
+        is_successful, message = get_landing_page_news_service()
+
+        if is_successful:
+            return OkResponse(news=message)
+        else:
+            return NotFoundResponse(message=message)
 
 
 class NewsDetailView(APIView):
     def get(self, request, token):
-        try:
-            news = news_detail(token)
-        except News.DoesNotExist:
-            return NotFoundResponse()
-        serializer = NewsSerializer(news)
-        return OkResponse(news=serializer.data)
+        is_successful, message = get_detail_view_service(token)
+
+        if is_successful:
+            return OkResponse(news=message)
+        else:
+            return NotFoundResponse(message=message)
 
 
 class InsertNews(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
+        # check user auth
+
+        # check is it reporter
+
+        # add news
         pass

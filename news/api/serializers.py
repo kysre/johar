@@ -53,7 +53,6 @@ class AgencySerializer(serializers.ModelSerializer):
 class NewsSerializer(serializers.ModelSerializer):
     agency = AgencySerializer()
     categories = CategorySerializer(many=True, read_only=True)
-    #likes = LikeSerializer(many=True, read_only=True)
 
     class Meta:
         model = News
