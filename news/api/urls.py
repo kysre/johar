@@ -9,5 +9,5 @@ urlpatterns = [
     path('login/', views.login),
     path('categories/<str:category_name>/', views.CategoryDetailView.as_view(), name='category_name'),
     path('add/', views.AddNews.as_view()),
-
+    path('<int:token>/update', views.UpdateNewsView.as_view())
 ]

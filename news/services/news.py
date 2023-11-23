@@ -51,13 +51,13 @@ def is_user_reporter(username):
         return True, reporter
 
 
-def creat_news_service(data, reporter):
+def create_news_service(data, reporter):
     if 'title' not in data:
         return False, 'news should have title'
     if 'description' not in data:
         return False, 'news should have description'
     categories = [get_category_id(category_name) for category_name in data.get('categories')]
-    token = creat_unique_token()
+    token = create_unique_token()
     data.pop('categories')
     news = News(**data, token=token, author=reporter, agency=reporter.agency)
     news.save()
@@ -65,7 +65,7 @@ def creat_news_service(data, reporter):
     return True, 'news created successfully'
 
 
-def creat_unique_token():
+def create_unique_token():
     while True:
         random_token = random.randint(10 ** 11, 10 ** 12 - 1)
         try:
