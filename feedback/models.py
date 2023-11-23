@@ -35,6 +35,7 @@ class Reaction(models.Model):
 class Comment(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE)
     username = models.CharField(max_length=50)
+    created_time = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=150)
 
     def __str__(self):

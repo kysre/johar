@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from rest_framework.decorators import (
     APIView,
@@ -9,7 +9,7 @@ from rest_framework.decorators import (
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from feedback.models import Reaction,Comment
+from feedback.models import Reaction, Comment
 from news.models import News, Subscriber
 from news.utils.authentication import get_user_By_token
 
@@ -53,5 +53,16 @@ class CommentOnNews(APIView):
             comment = Comment(username=username, news=news, text=text)
             comment.save()
             return OkResponse()
+        except News.DoesNotExist:
+            return NotFoundResponse()
+
+    def get(self, request, pk):
+        try:
+            news = News.objects.get(token=pk)
+            comments_for_news = Comment.objects.filter(news=news)
+            comments_list = [{'username': comment.username, 'created_time': comment.created_time, 'text': comment.text}
+                             for comment in comments_for_news]
+
+            return JsonResponse({'comments': comments_list})
         except News.DoesNotExist:
             return NotFoundResponse()
