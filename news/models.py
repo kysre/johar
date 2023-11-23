@@ -10,13 +10,13 @@ class Subscriber(models.Model):
 
 
 class Reporter(models.Model):
-    user = models.ForeignKey('Subscriber', on_delete=models.CASCADE)
+    subscriber = models.ForeignKey('Subscriber', on_delete=models.CASCADE)
     avatar = models.ImageField(blank=True, default=None, upload_to='reporters')
     agency = models.ForeignKey('Agency', on_delete=models.CASCADE)
     about_me = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.user.user.username
+        return self.subscriber.user.username
 
 
 class Agency(models.Model):

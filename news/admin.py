@@ -34,5 +34,5 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Reporter)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['user', 'avatar', 'agency']
+    list_display = ['subscriber', 'avatar', 'agency']
 

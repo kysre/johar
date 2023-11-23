@@ -9,9 +9,13 @@ from rest_framework.decorators import (
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-
 from news.services.news import (
     login_by_username_password,
+    get_category_detail_service,
+    get_landing_page_news_service,
+    get_detail_view_service,
+    is_user_reporter,
+    create_news_service,
 )
 from response.rest import (
     OkResponse,
@@ -20,12 +24,13 @@ from response.rest import (
     CreateUserErrorResponse,
     LoginSuccessResponse,
     LoginErrorResponse,
-    CategoryNotExists,
+    AccessErrorResponse,
+    BadRequestResponse,
 )
 
 from news.models import Subscriber, Agency, Category, News
 from news.api.serializers import (UserSerializer, CategorySerializer,
-                                  NewsSerializer)
+                                  NewsSerializer, ReporterSerializer, AgencySerializer)
 
 
 def index(request):
@@ -67,32 +72,70 @@ def sample_api(request):
 # Get news by Category title
 class CategoryDetailView(APIView):
     def get(self, request, category_name):
-        news = News.objects.filter(categories__title__contains=category_name)
-        if news.exists():
-            serializer = NewsSerializer(news, many=True)
-            return OkResponse(**{'all_news': serializer.data})
+        is_successful, message = get_category_detail_service(category_name)
+        if is_successful:
+            serializer = NewsSerializer(message, many=True)
+            return OkResponse(news=serializer.data)
         else:
-            return NotFoundResponse()
+            return NotFoundResponse(message=message)
 
 
 # Get all news
-class AllNewsDetailView(APIView):
+class LandingPageView(APIView):
     def get(self, request):
-        news = News.objects.all()
-        if news.exists():
-            serializer = NewsSerializer(news, many=True)
-            print(serializer.data)
-            return OkResponse(**{'all_news': serializer.data})
+        is_successful, message = get_landing_page_news_service()
+        if is_successful:
+            serializer = NewsSerializer(message, many=True)
+            return OkResponse(news=serializer.data)
         else:
-            return NotFoundResponse()
+            return NotFoundResponse(message=message)
 
 
 class NewsDetailView(APIView):
-    def get(self, request, pk):
-        try:
-            news = News.objects.get(token=pk)
-            serializer = NewsSerializer(news)
-            return OkResponse(**serializer.data)
-        except News.DoesNotExist:
-            return NotFoundResponse()
+    def get(self, request, token):
+        is_successful, message = get_detail_view_service(token)
+        if is_successful:
+            serializer = NewsSerializer(message)
+            return OkResponse(news=serializer.data)
+        else:
+            return NotFoundResponse(message=message)
 
+
+class AddNews(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # check is it reporter
+        username = request.user.username
+        is_successful, reporter = is_user_reporter(username)
+
+        if not is_successful:
+            return AccessErrorResponse('user cant add news(not a reporter)')
+
+        # add news
+        is_successful, message = create_news_service(request.data, reporter)
+        if is_successful:
+            return OkResponse(message=message)
+        else:
+            return BadRequestResponse(message)
+
+
+class UpdateNewsView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, token):
+        # check is it reporter
+        username = request.user.username
+        is_successful, reporter = is_user_reporter(username)
+
+        if not is_successful:
+            return AccessErrorResponse('user cant add news(not a reporter)')
+
+        # check if reporter is author of news
+        is_successful, message = creat_news_service(request.data, reporter)
+        if is_successful:
+            return OkResponse(message=message)
+        else:
+            return BadRequestResponse(message)
