@@ -28,7 +28,7 @@ from response.rest import (
     BadRequestResponse,
 )
 
-from news.models import Subscriber, Agency, Category, News
+from news.models import Subscriber
 from news.api.serializers import (UserSerializer, CategorySerializer,
                                   NewsSerializer, ReporterSerializer, AgencySerializer)
 
@@ -59,14 +59,6 @@ def login(request):
         return LoginSuccessResponse(username, token_key)
     else:
         return LoginErrorResponse(message)
-
-
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def sample_api(request):
-    # TODO: Do stuff
-    return None
 
 
 # Get news by Category title
@@ -134,7 +126,7 @@ class UpdateNewsView(APIView):
             return AccessErrorResponse('user cant add news(not a reporter)')
 
         # check if reporter is author of news
-        is_successful, message = creat_news_service(request.data, reporter)
+        is_successful, message = create_news_service(request.data, reporter)
         if is_successful:
             return OkResponse(message=message)
         else:
