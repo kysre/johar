@@ -8,5 +8,8 @@ urlpatterns = [
     path('sign_up/', views.user_signup),
     path('login/', views.login),
     path('categories/<str:category_name>/', views.CategoryDetailView.as_view(), name='category_name'),
-    path('insert/', views.InsertNews.as_view())
+    path('add/', views.AddNews.as_view()),
+    #path('update/', views.UpdateNews.as_view()),
+    #path('delete/', views.DeleteNews.as_view()),
+    #path()
 ]

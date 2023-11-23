@@ -15,7 +15,6 @@ from news.services.news import (
     get_landing_page_news_service,
     get_detail_view_service,
 )
-from news.utils.news import (get_category_detail, get_landing_page_news, news_detail)
 from response.rest import (
     OkResponse,
     NotFoundResponse,
@@ -70,9 +69,9 @@ def sample_api(request):
 class CategoryDetailView(APIView):
     def get(self, request, category_name):
         is_successful, message = get_category_detail_service(category_name)
-
         if is_successful:
-            return OkResponse(news=message)
+            serializer = NewsSerializer(message, many=True)
+            return OkResponse(news=serializer.data)
         else:
             return NotFoundResponse(message=message)
 
@@ -81,9 +80,9 @@ class CategoryDetailView(APIView):
 class LandingPageView(APIView):
     def get(self, request):
         is_successful, message = get_landing_page_news_service()
-
         if is_successful:
-            return OkResponse(news=message)
+            serializer = NewsSerializer(message, many=True)
+            return OkResponse(news=serializer.data)
         else:
             return NotFoundResponse(message=message)
 
@@ -91,16 +90,17 @@ class LandingPageView(APIView):
 class NewsDetailView(APIView):
     def get(self, request, token):
         is_successful, message = get_detail_view_service(token)
-
         if is_successful:
-            return OkResponse(news=message)
+            serializer = NewsSerializer(message)
+            return OkResponse(news=serializer.data)
         else:
             return NotFoundResponse(message=message)
 
 
-class InsertNews(APIView):
+class AddNews(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         # check user auth
 
