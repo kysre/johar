@@ -1,5 +1,8 @@
 from typing import Tuple
-import random
+import os
+import base64
+import time
+import struct
 
 from news.utils.news import (get_category_detail, get_landing_page_news, news_detail, get_reporter, get_category_id)
 from news.models import Subscriber, Agency, Category, News
@@ -60,16 +63,28 @@ def create_news_service(data, reporter):
     token = create_unique_token()
     data.pop('categories')
     news = News(**data, token=token, author=reporter, agency=reporter.agency)
-    news.save()
     news.categories.set(categories)
+    news.save()
     return True, 'news created successfully'
+
+
+def generate_random_urlsafe(length):
+    # generate random part
+    CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+    return "".join([CHARSET[c & 63] for c in os.urandom(length)])
+
+
+def generate_token():
+    time_part = base64.urlsafe_b64encode(
+        struct.pack('I', int(time.time()))
+    )[5::-1]
+    return time_part.decode("utf-8") + generate_random_urlsafe(6)
 
 
 def create_unique_token():
     while True:
-        random_token = random.randint(10 ** 11, 10 ** 12 - 1)
+        random_token = generate_token()
         try:
             news = news_detail(random_token)
         except News.DoesNotExist:
             return random_token
-
