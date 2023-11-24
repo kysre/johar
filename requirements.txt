@@ -8,6 +8,7 @@ django-cors-headers==4.3.0
 djangorestframework==3.14.0
 exceptiongroup==1.2.0
 executing==2.0.1
+Faker==18.4.0
 ipython==8.13.0
 jedi==0.19.1
 matplotlib-inline==0.1.6
