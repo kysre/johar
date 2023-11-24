@@ -9,16 +9,6 @@ class Subscriber(models.Model):
         return self.user.username
 
 
-class Reporter(models.Model):
-    subscriber = models.ForeignKey('Subscriber', on_delete=models.CASCADE)
-    avatar = models.ImageField(blank=True, default=None, upload_to='reporters')
-    agency = models.ForeignKey('Agency', on_delete=models.CASCADE)
-    about_me = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.subscriber.user.username
-
-
 class Agency(models.Model):
     name = models.CharField(max_length=250, unique=True)
     description = models.TextField()
@@ -26,6 +16,16 @@ class Agency(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Reporter(models.Model):
+    subscriber = models.ForeignKey(Subscriber, on_delete=models.CASCADE)
+    avatar = models.ImageField(blank=True, default=None, upload_to='reporters')
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE)
+    about_me = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.subscriber.user.username
 
 
 class Category(models.Model):
@@ -40,13 +40,13 @@ class Category(models.Model):
 
 class News(models.Model):
     title = models.CharField(max_length=250)
-    agency = models.ForeignKey('Agency', on_delete=models.CASCADE)
-    author = models.ForeignKey('Reporter', on_delete=models.PROTECT)
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE)
+    author = models.ForeignKey(Reporter, on_delete=models.PROTECT)
     token = models.CharField(max_length=12, unique=True)
     image = models.ImageField(blank=True, null=True, default=None, upload_to='news')
     description = models.TextField()
     is_draft = models.BooleanField(default=True)
-    categories = models.ManyToManyField('Category', blank=True, default=None)
+    categories = models.ManyToManyField(Category, blank=True, default=None)
     created_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
 

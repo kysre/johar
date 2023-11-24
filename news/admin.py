@@ -7,7 +7,7 @@ admin.site.register(Subscriber)
 
 class ReporterInlineAdmin(admin.StackedInline):
     model = Reporter
-    fields = ['user']
+    fields = ['subscriber']
     extra = 1
 
 
@@ -33,6 +33,6 @@ class NewsAdmin(admin.ModelAdmin):
 
 
 @admin.register(Reporter)
-class CategoryAdmin(admin.ModelAdmin):
+class ReporterAdmin(admin.ModelAdmin):
     list_display = ['subscriber', 'avatar', 'agency']
 
