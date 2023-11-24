@@ -16,6 +16,7 @@ from news.services.news import (
     get_detail_view_service,
     is_user_reporter,
     create_news_service,
+    search_for_news,
 )
 from response.rest import (
     OkResponse,
@@ -59,6 +60,16 @@ def login(request):
         return LoginSuccessResponse(username, token_key)
     else:
         return LoginErrorResponse(message)
+
+
+class NewsSearchView(APIView):
+    def get(self, request, keyword):
+        is_successful, message = search_for_news(keyword)
+        if is_successful:
+            serializer = NewsSerializer(message, many=True)
+            return OkResponse(news=serializer.data)
+        else:
+            return NotFoundResponse(message=message)
 
 
 # Get news by Category title

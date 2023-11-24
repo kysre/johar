@@ -4,8 +4,16 @@ import base64
 import time
 import struct
 
-from news.utils.news import (get_category_detail, get_landing_page_news, news_detail, get_reporter, get_category_id)
-from news.models import Subscriber, Agency, Category, News
+from news.utils.news import (
+    get_category_detail,
+    get_landing_page_news,
+    news_detail,
+    get_reporter,
+    get_category_id,
+    get_news_by_title_detail,
+    get_news_by_description_detail,
+)
+from news.models import News
 
 
 def login_by_username_password(username: str, password: str) -> Tuple[bool, str]:
@@ -52,6 +60,17 @@ def is_user_reporter(username):
         return False, 'User is not reporter'
     else:
         return True, reporter
+
+
+def search_for_news(keyword):
+    news_with_title_keyword = get_news_by_title_detail(keyword)
+    news_with_description_keyword = get_news_by_description_detail(keyword)
+    all_matched_news = list(news_with_title_keyword)
+    all_matched_news.extend(list(news_with_description_keyword))
+    if len(all_matched_news) == 0:
+        return False, 'No news matched that keyword'
+    else:
+        return True, all_matched_news
 
 
 def create_news_service(data, reporter):

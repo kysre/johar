@@ -33,3 +33,11 @@ def get_reporter(username):
 def get_category_id(category_name):
     category = Category.objects.get(title=category_name)
     return category.id
+
+
+def get_news_by_title_detail(keyword: str):
+    return News.objects.filter(title__icontains=keyword)
+
+
+def get_news_by_description_detail(keyword: str):
+    return News.objects.filter(description__icontains=keyword)
