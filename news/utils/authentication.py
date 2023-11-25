@@ -12,7 +12,7 @@ def get_user_token_key(username: str, password: str) -> str:
     token, _ = Token.objects.get_or_create(user=user)
     return token.key
 
-def get_user_By_token(token_key: str):
+def get_user_by_token(token_key: str):
     try:
         token = Token.objects.get(key=token_key)
         return token.user

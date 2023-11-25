@@ -13,5 +13,5 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ['news', 'username', 'text']
-    list_filter = ['news', 'username', 'text']
+    list_display = ['news', 'subscriber', 'text']
+    list_filter = ['news', 'subscriber', 'text']

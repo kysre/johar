@@ -5,15 +5,15 @@ from news.models import News, Subscriber
 
 
 class Reaction(models.Model):
-    LIKE = 'like'
-    DISLIKE = 'dislike'
+    LIKE = 'LIKE'
+    DISLIKE = 'DISLIKE'
     REACTION_CHOICES = [
-        (LIKE, 'Like'),
-        (DISLIKE, 'Dislike'),
+        (LIKE, 'LIKE'),
+        (DISLIKE, 'DISLIKE'),
     ]
     news = models.ForeignKey(News, on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
-    subscriber = models.ForeignKey(Subscriber, on_delete=models.CASCADE)
+    subscriber = models.ForeignKey(Subscriber, on_delete=models.SET_NULL, null=True)
     reaction = models.CharField(max_length=7, choices=REACTION_CHOICES)
 
     class Meta:
@@ -34,9 +34,9 @@ class Reaction(models.Model):
 
 class Comment(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE)
-    username = models.CharField(max_length=50)
+    subscriber = models.ForeignKey(Subscriber, on_delete=models.SET_NULL, null=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    text = models.CharField(max_length=150)
+    text = models.CharField(max_length=300)
 
     def __str__(self):
-        return f"Comment by {self.username} on {self.news}"
+        return f"Comment by {self.subscriber} on {self.news}"
