@@ -65,6 +65,18 @@ class LoginErrorResponse(Response):
         }
 
 
+
+class NotAuthorizedResponse(Response):
+    def __init__(self, message, **kwargs):
+        """
+        :type message: str
+        """
+        super().__init__(status=status.HTTP_401_UNAUTHORIZED)
+        self.data = {
+            'error': 'Not authorized',
+            'message': message,
+        }
+
 class AccessErrorResponse(Response):
     def __init__(self, message):
         super().__init__(status=status.HTTP_403_FORBIDDEN)
@@ -81,3 +93,4 @@ class BadRequestResponse(Response):
             'error': 'bad_request',
             'message': message
         }
+
