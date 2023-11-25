@@ -14,13 +14,13 @@ class Reaction(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
     subscriber = models.ForeignKey(Subscriber, on_delete=models.SET_NULL, null=True)
-    reaction = models.CharField(max_length=7, choices=REACTION_CHOICES)
+    reactionType = models.CharField(max_length=7, choices=REACTION_CHOICES)
 
     class Meta:
         unique_together = ('subscriber', 'news')
 
     def __str__(self):
-        return f'{str(self.news) + str(self.subscriber)} + {self.reaction}'
+        return f'{str(self.news) + str(self.subscriber)} + {self.reactionType}'
 
     @staticmethod
     def convert_str_to_reaction_type(inputString):

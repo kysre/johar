@@ -8,8 +8,8 @@ from feedback.models import Reaction, Comment
 
 @admin.register(Reaction)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ['news', 'subscriber', 'reaction']
-    list_filter = ['news', 'subscriber', 'reaction']
+    list_display = ['news', 'subscriber', 'reactionType']
+    list_filter = ['news', 'subscriber', 'reactionType']
 
 @admin.register(Comment)
 class NewsAdmin(admin.ModelAdmin):

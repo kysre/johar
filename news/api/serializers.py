@@ -52,6 +52,13 @@ class ReporterSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
 
+class SubscriberSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    email = serializers.EmailField(source='user.email')
+    class Meta:
+        model = Subscriber
+        fields = ('username', 'email')
+
 class NewsSerializer(serializers.ModelSerializer):
     agency = AgencySerializer()
     author = ReporterSerializer()
