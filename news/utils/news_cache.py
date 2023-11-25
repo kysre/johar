@@ -1,4 +1,6 @@
 import os
+import json
+
 from clients.cache.redis import RedisConfig, create_redis_client
 
 MINUTE = 60
@@ -10,6 +12,7 @@ class NewsCache:
     _redis_client = None
     _landing_view_ttl = None
     _news_data_ttl = None
+    _news_landing_view_key = 'NEWS_LANDING_PAGE'
 
     @classmethod
     def _get_redis_connection(cls):
@@ -27,11 +30,31 @@ class NewsCache:
         return cls._get_redis_connection()
 
     @classmethod
-    def set_news_data(cls, token: str, data):
+    def _set_key_value(cls, key, value, ex):
+        encoded_data = json.dumps(value).encode('utf-8')
         client = cls._get_redis_client()
-        client.set(token, data, ex=cls._news_data_ttl)
+        client.set(key, encoded_data, ex=ex)
+
+    @classmethod
+    def _get_value(cls, key):
+        client = cls._get_redis_client()
+        data = client.get(key)
+        if data is not None:
+            data = json.loads(data.decode())
+        return data
+
+    @classmethod
+    def set_news_data(cls, token: str, news_data):
+        cls._set_key_value(token, news_data, cls._news_data_ttl)
 
     @classmethod
     def get_news_data(cls, token: str):
-        client = cls._get_redis_client()
-        return client.get(token).decode()
+        return cls._get_value(token)
+
+    @classmethod
+    def set_news_landing_page(cls, landing_page_data):
+        cls._set_key_value(cls._news_landing_view_key, landing_page_data, cls._landing_view_ttl)
+
+    @classmethod
+    def get_news_landing_page(cls):
+        return cls._get_value(cls._news_landing_view_key)
