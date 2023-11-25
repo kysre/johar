@@ -19,7 +19,7 @@ class NewsCache:
         redis_config = RedisConfig()
         redis_config.db = int(os.getenv("NEWS_REDIS_DB", 1))
         cls._redis_client = create_redis_client(config=redis_config)
-        cls._landing_view_ttl = int(os.getenv("REDIS_LANDING_VIEW_TTL_SEC", MINUTE * 5))
+        cls._landing_view_ttl = int(os.getenv("REDIS_LANDING_VIEW_TTL_SEC", MINUTE * 10))
         cls._news_data_ttl = int(os.getenv("REDIS_NEWS_DATA_TTL_DAYS", 120)) * DAY
         return cls._redis_client
 

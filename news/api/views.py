@@ -88,8 +88,7 @@ class LandingPageView(APIView):
     def get(self, request):
         is_successful, message = get_landing_page_news_service()
         if is_successful:
-            serializer = NewsSerializer(message, many=True)
-            return OkResponse(news=serializer.data)
+            return OkResponse(news=message)
         else:
             return NotFoundResponse(message=message)
 
@@ -98,8 +97,7 @@ class NewsDetailView(APIView):
     def get(self, request, token):
         is_successful, message = get_detail_view_service(token)
         if is_successful:
-            serializer = NewsSerializer(message)
-            return OkResponse(news=serializer.data)
+            return OkResponse(news=message)
         else:
             return NotFoundResponse(message=message)
 

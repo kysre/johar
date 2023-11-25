@@ -7,13 +7,15 @@ import struct
 from news.utils.news import (
     get_category_detail,
     get_landing_page_news,
-    news_detail,
+    get_news_by_token,
     get_reporter,
     get_category_id,
     get_news_by_title_detail,
     get_news_by_description_detail,
 )
+from news.utils.news_cache import NewsCache
 from news.models import News
+from news.api.serializers import NewsSerializer
 
 
 def login_by_username_password(username: str, password: str) -> Tuple[bool, str]:
@@ -39,19 +41,27 @@ def get_category_detail_service(category_name):
 
 
 def get_landing_page_news_service():
-    try:
-        news = get_landing_page_news()
-        return True, news
-    except News.DoesNotExist:
-        return False, 'No news in last 7 days'
+    resp = NewsCache.get_news_landing_page()
+    if resp is None:
+        try:
+            news = get_landing_page_news()
+        except News.DoesNotExist:
+            return False, 'No news in last 7 days'
+        resp = NewsSerializer(news, many=True).data
+        NewsCache.set_news_landing_page(resp)
+    return True, resp
 
 
-def get_detail_view_service(token):
-    try:
-        news = news_detail(token)
-        return True, news
-    except News.DoesNotExist:
-        return False, 'there is no post with this token'
+def get_detail_view_service(token: str):
+    resp = NewsCache.get_news_data(token)
+    if resp is None:
+        try:
+            news = get_news_by_token(token)
+        except News.DoesNotExist:
+            return False, 'there is no post with this token'
+        resp = NewsSerializer(news).data
+        NewsCache.set_news_data(token, resp)
+    return True, resp
 
 
 def is_user_reporter(username):
@@ -104,6 +114,6 @@ def create_unique_token():
     while True:
         random_token = generate_token()
         try:
-            news = news_detail(random_token)
+            news = get_news_by_token(random_token)
         except News.DoesNotExist:
             return random_token
