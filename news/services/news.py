@@ -72,6 +72,17 @@ def is_user_reporter(username):
         return True, reporter
 
 
+def is_reporter_author(reporter, token):
+    try:
+        news = get_news_by_token(token)
+    except News.DoesNotExist:
+        return False, 'news does not exists'
+    news_author = news.author
+    if news_author == reporter:
+        return True, news
+    return False, 'reporter is not author of news'
+
+
 def search_for_news(keyword):
     news_with_title_keyword = get_news_by_title_detail(keyword)
     news_with_description_keyword = get_news_by_description_detail(keyword)
@@ -95,6 +106,36 @@ def create_news_service(data, reporter):
     news.categories.set(categories)
     news.save()
     return True, 'news created successfully'
+
+
+def update_news_service(data, news):
+    # check data to be valid
+    editable_fields = ['title', 'description', 'is_draft', 'categories']
+    if not all(key in editable_fields for key in data):
+        return False, 'bad data format'
+
+    # update categories
+    if 'categories' in data.keys():
+        categories = [get_category_id(category_name) for category_name in data.get('categories')]
+        data.pop('categories')
+        news.categories.set(categories)
+    # update other fields
+    for field, value in data.items():
+        # check field can be updated
+        setattr(news, field, value)
+    news.save()
+
+    # save changes into cache
+    resp = NewsSerializer(news).data
+    NewsCache.set_news_data(news.token, resp)
+    return True, 'news updated successfully'
+
+
+def delete_news(news):
+    news.delete()
+
+    # todo delete from cache
+    return True, 'news deleted successfully'
 
 
 def generate_random_urlsafe(length):
