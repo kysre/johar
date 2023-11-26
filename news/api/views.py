@@ -16,6 +16,7 @@ from news.services.news import (
     get_detail_view_service,
     is_user_reporter,
     create_news_service,
+    search_for_news,
 )
 from response.rest import (
     OkResponse,
@@ -61,6 +62,16 @@ def login(request):
         return LoginErrorResponse(message)
 
 
+class NewsSearchView(APIView):
+    def get(self, request, keyword):
+        is_successful, message = search_for_news(keyword)
+        if is_successful:
+            serializer = NewsSerializer(message, many=True)
+            return OkResponse(news=serializer.data)
+        else:
+            return NotFoundResponse(message=message)
+
+
 # Get news by Category title
 class CategoryDetailView(APIView):
     def get(self, request, category_name):
@@ -77,8 +88,7 @@ class LandingPageView(APIView):
     def get(self, request):
         is_successful, message = get_landing_page_news_service()
         if is_successful:
-            serializer = NewsSerializer(message, many=True)
-            return OkResponse(news=serializer.data)
+            return OkResponse(news=message)
         else:
             return NotFoundResponse(message=message)
 
@@ -87,8 +97,7 @@ class NewsDetailView(APIView):
     def get(self, request, token):
         is_successful, message = get_detail_view_service(token)
         if is_successful:
-            serializer = NewsSerializer(message)
-            return OkResponse(news=serializer.data)
+            return OkResponse(news=message)
         else:
             return NotFoundResponse(message=message)
 
