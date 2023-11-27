@@ -9,12 +9,14 @@ from news.utils.news import (
     get_landing_page_news,
     get_news_by_token,
     get_reporter,
+    get_subscriber,
+    get_agency,
     get_category_id,
     get_news_by_title_detail,
     get_news_by_description_detail,
 )
 from news.utils.news_cache import NewsCache
-from news.models import News
+from news.models import News, Agency, Reporter
 from news.api.serializers import NewsSerializer
 
 
@@ -136,6 +138,60 @@ def delete_news(news):
 
     # todo delete from cache
     return True, 'news deleted successfully'
+
+
+def create_agency(data, username):
+    # check data to include require fields and do not include any other fields
+    require_fields = ['name', 'description']
+    if not all(require_field in list(data.keys()) for require_field in require_fields):
+        return False, f'data must include all require fields'
+
+    require_fields.append('image')
+    if not all(key in require_fields for key in data):
+        return False, 'Bad data format'
+
+    # check if there is any other agency with this name
+    agency = get_agency(data['name'])
+    if agency is not None:
+        return False, 'agency with this name already exists'
+
+    # create agency
+    agency = Agency(**data)
+    agency.save()
+    # todo save in cache?
+
+    # create reporter
+    subscriber = get_subscriber(username)
+    reporter = Reporter(subscriber=subscriber, agency=agency)
+    reporter.save()
+    # todo save in cache?
+    return True, 'Agency created successfully'
+
+
+def add_reporter(data, reporter):
+    # check data to include require fields and do not include any other fields
+    if 'username' not in data.keys():
+        return False, 'data must include username'
+    if len(data) > 1:
+        return False, 'bad data format'
+
+    # check if there is a subscriber with username
+    username = data['username']
+    subscriber = get_subscriber(username)
+    if subscriber is None:
+        return False, 'there is no user with this username'
+
+    # check if there is a reporter with username
+    user_reporter = get_reporter(username)
+    if user_reporter:
+        return False, 'user  already is a reporter'
+
+    # create reporter
+    new_reporter = Reporter(subscriber=subscriber, agency=reporter.agency)
+    new_reporter.save()
+    # todo save in cache?
+
+    return True, 'reporter created successfully'
 
 
 def generate_random_urlsafe(length):

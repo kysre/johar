@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from news.models import News, Category, Reporter, Subscriber
+from news.models import News, Category, Reporter, Subscriber, Agency
 from datetime import datetime, timedelta
 from news.utils.news_cache import NewsCache
 
@@ -26,6 +26,22 @@ def get_reporter(username):
         reporter = Reporter.objects.get(subscriber=subscriber)
         return reporter
     except (get_user_model().DoesNotExist, Reporter.DoesNotExist):
+        return None
+
+
+def get_subscriber(username):
+    try:
+        subscriber = get_user_model().objects.get(username=username).subscriber
+        return subscriber
+    except get_user_model().DoesNotExist:
+        return None
+
+
+def get_agency(name):
+    try:
+        agency = Agency.objects.get(name=name)
+        return agency
+    except Agency.DoesNotExist:
         return None
 
 

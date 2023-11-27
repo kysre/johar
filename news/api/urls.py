@@ -10,6 +10,8 @@ urlpatterns = [
     path('add/', views.AddNews.as_view()),
     path('update/<str:token>', views.UpdateNewsView.as_view()),
     path('delete/<str:token>', views.DeleteNewsView.as_view()),
+    path('createAgency', views.CreateAgencyView.as_view()),
+    path('addReporter', views.AddReporterView.as_view()),
     path('search/<str:keyword>', views.NewsSearchView.as_view()),
     path('<str:token>/', views.NewsDetailView.as_view()),
 ]

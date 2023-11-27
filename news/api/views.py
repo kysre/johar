@@ -19,6 +19,8 @@ from news.services.news import (
     create_news_service,
     update_news_service,
     delete_news,
+    create_agency,
+    add_reporter,
     search_for_news,
 )
 from response.rest import (
@@ -170,6 +172,44 @@ class DeleteNewsView(APIView):
 
         # delete
         is_successful, message = delete_news(news)
+        if is_successful:
+            return OkResponse(message=message)
+        else:
+            return BadRequestResponse(message)
+
+
+class CreateAgencyView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # check user to not be a reporter
+        username = request.user.username
+        is_reporter, reporter = is_user_reporter(username)
+
+        if is_reporter:
+            return AccessErrorResponse('reporters cant create agency')
+
+        # create agency
+        is_successful, message = create_agency(request.data, username)
+        if is_successful:
+            return OkResponse(message=message)
+        else:
+            return BadRequestResponse(message)
+
+
+class AddReporterView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # check is it reporter
+        username = request.user.username
+        is_successful, reporter = is_user_reporter(username)
+        if not is_successful:
+            return AccessErrorResponse('user cant add reporters (not a reporter)')
+
+        is_successful, message = add_reporter(request.data, reporter)
         if is_successful:
             return OkResponse(message=message)
         else:
