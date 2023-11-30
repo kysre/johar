@@ -8,9 +8,9 @@ from news.utils.news import (
     get_category_detail,
     get_landing_page_news,
     get_news_by_token,
-    get_reporter,
-    get_subscriber,
-    get_agency,
+    get_reporter_by_username,
+    get_subscriber_by_username,
+    get_agency_by_name,
     get_category_id,
     get_news_by_title_detail,
     get_news_by_description_detail,
@@ -67,7 +67,7 @@ def get_detail_view_service(token: str):
 
 
 def is_user_reporter(username):
-    reporter = get_reporter(username)
+    reporter = get_reporter_by_username(username)
     if reporter is None:
         return False, 'User is not reporter'
     else:
@@ -142,16 +142,16 @@ def delete_news(news):
 
 def create_agency(data, username):
     # check data to include require fields and do not include any other fields
-    require_fields = ['name', 'description']
-    if not all(require_field in list(data.keys()) for require_field in require_fields):
+    required_fields = ['name', 'description']
+    if not all(require_field in list(data.keys()) for require_field in required_fields):
         return False, f'data must include all require fields'
 
-    require_fields.append('image')
-    if not all(key in require_fields for key in data):
+    required_fields.append('image')
+    if not all(key in required_fields for key in data):
         return False, 'Bad data format'
 
     # check if there is any other agency with this name
-    agency = get_agency(data['name'])
+    agency = get_agency_by_name(data['name'])
     if agency is not None:
         return False, 'agency with this name already exists'
 
@@ -161,7 +161,7 @@ def create_agency(data, username):
     # todo save in cache?
 
     # create reporter
-    subscriber = get_subscriber(username)
+    subscriber = get_subscriber_by_username(username)
     reporter = Reporter(subscriber=subscriber, agency=agency)
     reporter.save()
     # todo save in cache?
@@ -177,12 +177,12 @@ def add_reporter(data, reporter):
 
     # check if there is a subscriber with username
     username = data['username']
-    subscriber = get_subscriber(username)
+    subscriber = get_subscriber_by_username(username)
     if subscriber is None:
         return False, 'there is no user with this username'
 
     # check if there is a reporter with username
-    user_reporter = get_reporter(username)
+    user_reporter = get_reporter_by_username(username)
     if user_reporter:
         return False, 'user  already is a reporter'
 

@@ -20,7 +20,7 @@ def get_news_by_token(token):
     return News.objects.get(token=token)
 
 
-def get_reporter(username):
+def get_reporter_by_username(username):
     try:
         subscriber = get_user_model().objects.get(username=username).subscriber
         reporter = Reporter.objects.get(subscriber=subscriber)
@@ -29,7 +29,7 @@ def get_reporter(username):
         return None
 
 
-def get_subscriber(username):
+def get_subscriber_by_username(username):
     try:
         subscriber = get_user_model().objects.get(username=username).subscriber
         return subscriber
@@ -37,7 +37,7 @@ def get_subscriber(username):
         return None
 
 
-def get_agency(name):
+def get_agency_by_name(name):
     try:
         agency = Agency.objects.get(name=name)
         return agency
