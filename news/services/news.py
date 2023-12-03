@@ -144,7 +144,7 @@ def create_agency(data, username):
     # check data to include require fields and do not include any other fields
     required_fields = ['name', 'description']
     if not all(require_field in list(data.keys()) for require_field in required_fields):
-        return False, f'data must include all require fields'
+        return False, f'data must include all required fields(name and description)'
 
     required_fields.append('image')
     if not all(key in required_fields for key in data):
@@ -156,7 +156,7 @@ def create_agency(data, username):
         return False, 'agency with this name already exists'
 
     # create agency
-    agency = Agency(**data)
+    agency = Agency(name=data['name'], description=data['description'])
     agency.save()
     # todo save in cache?
 
@@ -169,11 +169,9 @@ def create_agency(data, username):
 
 
 def add_reporter(data, reporter):
-    # check data to include require fields and do not include any other fields
+    # check data to include required fields
     if 'username' not in data.keys():
         return False, 'data must include username'
-    if len(data) > 1:
-        return False, 'bad data format'
 
     # check if there is a subscriber with username
     username = data['username']
