@@ -143,12 +143,8 @@ def delete_news(news):
 def create_agency(data, username):
     # check data to include require fields and do not include any other fields
     required_fields = ['name', 'description']
-    if not all(require_field in list(data.keys()) for require_field in required_fields):
+    if not all(required_field in list(data.keys()) for required_field in required_fields):
         return False, f'data must include all required fields(name and description)'
-
-    required_fields.append('image')
-    if not all(key in required_fields for key in data):
-        return False, 'Bad data format'
 
     # check if there is any other agency with this name
     agency = get_agency_by_name(data['name'])
