@@ -44,12 +44,21 @@ class NewsCache:
         return data
 
     @classmethod
+    def _delete_value(cls, key):
+        client = cls._get_redis_client()
+        client.delete(key)
+
+    @classmethod
     def set_news_data(cls, token: str, news_data):
         cls._set_key_value(token, news_data, cls._news_data_ttl)
 
     @classmethod
     def get_news_data(cls, token: str):
         return cls._get_value(token)
+
+    @classmethod
+    def delete_news_data(cls, token: str):
+        cls._delete_value(token)
 
     @classmethod
     def set_news_landing_page(cls, landing_page_data):
