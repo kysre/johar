@@ -6,6 +6,7 @@ help:
 	@echo "  migrate:              to make migrations and migrate database"
 	@echo "  test:                 to run django tests"
 	@echo "  run-docker-compose:   to docker-compose up and serve static files"
+	@echo "  gen-fake-data:        to generate some testing data for docker-compose"
 
 
 venv:
@@ -34,6 +35,11 @@ test:
 
 
 run-docker-compose:
-	docker-compose up -d
+	docker-compose up -d --build
 	docker-compose exec backend python manage.py collectstatic --noinput
+	docker-compose exec backend python manage.py migrate
+
+gen-fake-data:
+	docker-compose exec backend python manage.py flush_db
+	docker-compose exec backend python manage.py generate_fake_data
 

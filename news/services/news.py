@@ -127,16 +127,15 @@ def update_news_service(data, news):
         setattr(news, field, value)
     news.save()
 
-    # save changes into cache
-    resp = NewsSerializer(news).data
-    NewsCache.set_news_data(news.token, resp)
+    # Invalidate News cache
+    NewsCache.delete_news_data(news.token)
+
     return True, 'news updated successfully'
 
 
 def delete_news(news):
     news.delete()
-
-    # todo delete from cache
+    NewsCache.delete_news_data(news.token)
     return True, 'news deleted successfully'
 
 
@@ -154,13 +153,11 @@ def create_agency(data, username):
     # create agency
     agency = Agency(name=data['name'], description=data['description'])
     agency.save()
-    # todo save in cache?
 
     # create reporter
     subscriber = get_subscriber_by_username(username)
     reporter = Reporter(subscriber=subscriber, agency=agency)
     reporter.save()
-    # todo save in cache?
     return True, 'Agency created successfully'
 
 
@@ -183,7 +180,6 @@ def add_reporter(data, reporter):
     # create reporter
     new_reporter = Reporter(subscriber=subscriber, agency=reporter.agency)
     new_reporter.save()
-    # todo save in cache?
 
     return True, 'reporter created successfully'
 
