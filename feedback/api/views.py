@@ -4,7 +4,7 @@ from rest_framework.decorators import (
 from feedback.services.feedback import create_reaction_service, create_comment_service
 from feedback.utils.feedback import get_all_reactions_of_a_news, get_all_comments_of_a_news
 from news.models import News, Subscriber
-from news.utils.news import news_detail
+from news.utils.news import get_news_by_token
 
 from response.rest import (
     NotFoundResponse,
@@ -14,7 +14,7 @@ from response.rest import (
 class ReactToNews(APIView):
     def post(self, request, token):
         try:
-            news = news_detail(token=token)
+            news = get_news_by_token(token=token)
             # add reaction
             response = create_reaction_service(request, news)
             return response
@@ -22,7 +22,7 @@ class ReactToNews(APIView):
             return NotFoundResponse()
     def get(self, request, token):
         try:
-            news = news_detail(token=token)
+            news = get_news_by_token(token=token)
             # add reaction
             response = get_all_reactions_of_a_news(news)
             return response
@@ -33,7 +33,7 @@ class ReactToNews(APIView):
 class CommentOnNews(APIView):
     def post(self, request, token):
         try:
-            news = news_detail(token=token)
+            news = get_news_by_token(token=token)
             # add comment
             response = create_comment_service(request, news)
             return response
@@ -42,7 +42,7 @@ class CommentOnNews(APIView):
 
     def get(self, request, token):
         try:
-            news = news_detail(token=token)
+            news = get_news_by_token(token=token)
             # add reaction
             response = get_all_comments_of_a_news(news)
             return response
