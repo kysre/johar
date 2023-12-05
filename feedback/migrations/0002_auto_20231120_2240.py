@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('news', '0003_auto_20231120_1819'),
+        ('news', '0003_auto_20231121_1559'),
         ('feedback', '0001_initial'),
     ]
 
