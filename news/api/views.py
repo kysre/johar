@@ -22,6 +22,7 @@ from news.services.news import (
     create_agency,
     add_reporter,
     search_for_news,
+    create_news_suggestion,
 )
 from response.rest import (
     OkResponse,
@@ -70,6 +71,16 @@ def login(request):
 class NewsSearchView(APIView):
     def get(self, request, keyword):
         is_successful, message = search_for_news(keyword)
+        if is_successful:
+            serializer = NewsSerializer(message, many=True)
+            return OkResponse(news=serializer.data)
+        else:
+            return NotFoundResponse(message=message)
+
+
+class NewsSuggestionView(APIView):
+    def get(self, request, token):
+        is_successful, message = create_news_suggestion(token)
         if is_successful:
             serializer = NewsSerializer(message, many=True)
             return OkResponse(news=serializer.data)
