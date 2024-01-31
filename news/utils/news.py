@@ -1,8 +1,11 @@
-from django.contrib.auth import get_user_model
+import os
+import random
 
-from news.models import News, Category, Reporter, Subscriber, Agency
+from django.contrib.auth import get_user_model
+from django.db.models import Max
+
+from news.models import News, Category, Reporter, Agency
 from datetime import datetime, timedelta
-from news.utils.news_cache import NewsCache
 
 
 def get_category_detail(category_name):
@@ -56,3 +59,19 @@ def get_news_by_title_detail(keyword: str):
 
 def get_news_by_description_detail(keyword: str):
     return News.objects.filter(description__icontains=keyword)
+
+
+def get_random_news(excluded_tokens=None):
+    if excluded_tokens is None:
+        excluded_tokens = []
+    suggestion_count = int(os.environ.get('NEWS_SUGGESTION_COUNT', 5))
+    query_set = News.objects.exclude(token__in=excluded_tokens)
+    return get_random_obj_from_queryset(query_set, suggestion_count)
+
+
+def get_random_obj_from_queryset(queryset, count=1):
+    max_pk = queryset.aggregate(max_pk=Max("pk"))['max_pk']
+    random_pks = [random.randint(1, max_pk) for _ in range(count)]
+    while True:
+        objs = queryset.filter(pk__in=random_pks).all()
+        return objs

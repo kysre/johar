@@ -14,6 +14,7 @@ from news.utils.news import (
     get_category_id,
     get_news_by_title_detail,
     get_news_by_description_detail,
+    get_random_news,
 )
 from news.utils.news_cache import NewsCache
 from news.models import News, Agency, Reporter
@@ -94,6 +95,14 @@ def search_for_news(keyword):
         return False, 'No news matched that keyword'
     else:
         return True, all_matched_news
+
+
+def create_news_suggestion(token: str):
+    suggestions = get_random_news(excluded_tokens=[token])
+    if len(suggestions) == 0:
+        return False, 'No Suggestion'
+    else:
+        return True, suggestions
 
 
 def create_news_service(data, reporter):
