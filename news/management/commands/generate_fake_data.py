@@ -13,6 +13,7 @@ from news.models import (
     Agency,
     Category,
     News,
+    Subscription,
 )
 from news.services.news import create_unique_token
 
@@ -27,6 +28,7 @@ def generate_fake_data():
     AGENCY_COUNT = int(os.getenv("AGENCY_COUNT", 10))
     REPORTER_PER_AGENCY = int(os.getenv("REPORTER_PER_AGENCY", 2))
     NEWS_COUNT = int(os.getenv("NEWS_COUNT", 1000))
+    MAX_SUBSCRIPTION_COUNT = int(os.getenv("MAX_SUBSCRIPTION_COUNT", 3))
 
     fake = Faker()
     # Create subscribers
@@ -40,8 +42,10 @@ def generate_fake_data():
         subscribers.append(subscriber)
 
     reporters = []
+    agencies = []
     for i in range(AGENCY_COUNT):
         agency = Agency.objects.create(name=fake.company(), description=fake.paragraph())
+        agencies.append(agency)
         for j in range(REPORTER_PER_AGENCY):
             subscriber = subscribers[i * REPORTER_PER_AGENCY + j]
             reporter = Reporter.objects.create(
@@ -51,6 +55,13 @@ def generate_fake_data():
                 about_me=fake.paragraph(),
             )
             reporters.append(reporter)
+
+    for subscriber in subscribers:
+        for i in range(MAX_SUBSCRIPTION_COUNT):
+            should_subscribe = True if random.randint(0, 1) == 1 else False
+            if should_subscribe:
+                agency = get_random_obj(agencies)
+                Subscription.objects.create(subscriber=subscriber, agency=agency)
 
     categories = [Category.objects.create(title='Sports', description=fake.text()),
                   Category.objects.create(title='Weather', description=fake.text()),
