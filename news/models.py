@@ -52,3 +52,8 @@ class News(models.Model):
 
     def __str__(self):
         return f'{str(self.id) + str(self.agency)} + {self.title}'
+
+
+class Subscription(models.Model):
+    subscriber = models.ForeignKey(Subscriber, on_delete=models.CASCADE)
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE)

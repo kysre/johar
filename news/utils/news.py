@@ -4,7 +4,7 @@ import random
 from django.contrib.auth import get_user_model
 from django.db.models import Max
 
-from news.models import News, Category, Reporter, Agency
+from news.models import News, Category, Reporter, Agency, Subscription
 from datetime import datetime, timedelta
 
 
@@ -75,3 +75,8 @@ def get_random_obj_from_queryset(queryset, count=1):
     while True:
         objs = queryset.filter(pk__in=random_pks).all()
         return objs
+
+
+def get_subscriptions_by_subscriber(subscriber):
+    subscriptions = Subscription.objects.filter(subscriber=subscriber)
+    return subscriptions
