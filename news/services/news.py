@@ -15,9 +15,10 @@ from news.utils.news import (
     get_news_by_title_detail,
     get_news_by_description_detail,
     get_random_news,
+    get_subscriptions_by_subscriber,
 )
 from news.utils.news_cache import NewsCache
-from news.models import News, Agency, Reporter
+from news.models import News, Agency, Reporter, Subscription
 from news.api.serializers import NewsSerializer
 
 
@@ -103,6 +104,25 @@ def create_news_suggestion(token: str):
         return False, 'No Suggestion'
     else:
         return True, suggestions
+
+
+def get_user_subscriptions_service(username: str):
+    subscriber = get_subscriber_by_username(username)
+    subscriptions = get_subscriptions_by_subscriber(subscriber)
+    agencies = []
+    for sub in subscriptions:
+        agencies.append(sub.agency)
+    return True, agencies
+
+
+def subscribe_news_service(username: str, agency_name: str):
+    subscriber = get_subscriber_by_username(username)
+    agency = get_agency_by_name(agency_name)
+    if agency is not None:
+        Subscription.objects.create(subscriber=subscriber, agency=agency)
+        return True, 'Subscription added successfully'
+    else:
+        return False, 'Agency not found!'
 
 
 def create_news_service(data, reporter):

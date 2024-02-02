@@ -23,6 +23,8 @@ from news.services.news import (
     add_reporter,
     search_for_news,
     create_news_suggestion,
+    get_user_subscriptions_service,
+    subscribe_news_service,
 )
 from response.rest import (
     OkResponse,
@@ -84,6 +86,29 @@ class NewsSuggestionView(APIView):
         if is_successful:
             serializer = NewsSerializer(message, many=True)
             return OkResponse(news=serializer.data)
+        else:
+            return NotFoundResponse(message=message)
+
+
+class NewsSubscriptionView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        username = request.user.username
+        is_successful, message = get_user_subscriptions_service(username)
+        if is_successful:
+            serializer = AgencySerializer(message, many=True)
+            return OkResponse(subscriptions=serializer.data)
+        else:
+            return NotFoundResponse(message=message)
+
+    def post(self, request):
+        username = request.user.username
+        agency_name = request.data.get('agency_name', None)
+        is_successful, message = subscribe_news_service(username, agency_name)
+        if is_successful:
+            return OkResponse(message=message)
         else:
             return NotFoundResponse(message=message)
 
