@@ -16,10 +16,11 @@ from news.utils.news import (
     get_news_by_description_detail,
     get_random_news,
     get_subscriptions_by_subscriber,
+    get_agency_news,
 )
 from news.utils.news_cache import NewsCache
 from news.models import News, Agency, Reporter, Subscription
-from news.api.serializers import NewsSerializer
+from news.api.serializers import NewsSerializer, AgencySerializer
 
 
 def login_by_username_password(username: str, password: str) -> Tuple[bool, str]:
@@ -67,6 +68,21 @@ def get_detail_view_service(token: str):
         NewsCache.set_news_data(token, resp)
     return True, resp
 
+
+def get_agency_service(agency_name: str):
+    # todo add cache
+    try:
+        agency = get_agency_by_name(agency_name)
+    except Agency.DoesNotExist:
+        return False, 'there is no agency with this token'
+    resp = AgencySerializer(agency).data
+    return True, resp
+
+
+def get_agency_news_service(agency_name: str):
+    news = get_agency_news(agency_name)
+    resp = NewsSerializer(news, many=True).data
+    return resp
 
 def is_user_reporter(username):
     reporter = get_reporter_by_username(username)

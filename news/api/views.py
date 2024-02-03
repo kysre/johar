@@ -25,6 +25,8 @@ from news.services.news import (
     create_news_suggestion,
     get_user_subscriptions_service,
     subscribe_news_service,
+    get_agency_service,
+    get_agency_news_service,
 )
 from response.rest import (
     OkResponse,
@@ -109,6 +111,17 @@ class NewsSubscriptionView(APIView):
         is_successful, message = subscribe_news_service(username, agency_name)
         if is_successful:
             return OkResponse(message=message)
+        else:
+            return NotFoundResponse(message=message)
+
+
+class AgencyDetailView(APIView):
+
+    def get(self, request, agency_name):
+        is_successful, message = get_agency_service(agency_name)
+        if is_successful:
+            news = get_agency_news_service(agency_name)
+            return OkResponse(agency=message, news=news)
         else:
             return NotFoundResponse(message=message)
 
