@@ -48,6 +48,13 @@ def get_agency_by_name(name):
         return None
 
 
+def get_agency_news(agency_name):
+    agency = Agency.objects.get(name=agency_name)
+    news = News.objects.filter(agency=agency)
+    return news
+
+
+
 def get_category_id(category_name):
     category = Category.objects.get(title=category_name)
     return category.id
